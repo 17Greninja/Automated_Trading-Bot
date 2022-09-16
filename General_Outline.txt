@@ -1,0 +1,36 @@
+1) Get OHLC data from API/web. 
+    i)  timeperiod of ohlc data - 30 min candle
+    ii) how many periods data we are using (eg past 1yr, 100 days)
+    iii) how many stocks are we screening (50-100)
+    iv) get OHLC data only once
+
+2) Convert OHLC data into Renko Chart
+   i)  brick size (1 percent of 100 period average, etc..)
+   ii) fixed or variable brick size
+   iii) starting value of renko bar (in fixed brick-size algorithm)
+   
+3) Update current price into Renko Chart (whether a new bar is formed or not)
+   i) How often are we getting current price (30 min)
+   
+4) Define entry conditions for Buying and exit conditions for selling
+
+5) Send alert once entry/exit conditons are triggered
+
+5) Place order through API or manually
+
+6) How to choose which stocks to buy
+   i)  Based on past behaviour (proprtional to average renko uptrend, can modify further)
+   ii) How many stocks to invest in? (3-10)
+   ii) sector based?
+   
+7) Buffer money 
+
+8) Negatively correlated stocks
+
+9) Catastrophe condition - to detect unusual stock movement
+   i) scan for stocks which moved x% in past y% days, invest more in them
+   
+
+
+
+
