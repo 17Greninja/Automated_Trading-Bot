@@ -8,10 +8,15 @@ import requests
 import schedule
 import time
 import math
+from twisted.internet import task, reactor
 
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
 # stockToRenko = {} # dictionary - {'SBIN':renkoSBIN,'ADANI':renkoADANI,..........}
 stockToRenko = {}
+# allStocksData will have a df for each stock, will contain info about investments in that particular stock
+allStocksData = {}
+# currentInvestment will contain data about all stocks and the amount of money currently invested in them.
+currentInvestment = {}
 
 def initializeRenko(stockName):
     # initial data
@@ -66,20 +71,52 @@ def getBrickSize(stockName):
     brickSize = stockToRenko[stockName].tail(1)["bottom price"]/20
     return brickSize
 
-def signalFunction(stock):
+def detectCatastrophe(stockName):
+    # return true if condition is a catastrophe, else false
+    # defination of catastrophe: 
+    return False 
+
+def signalFunction(stockName):
     # run through given stock and return what to do
     # this will be run every 15 mins
     # run simultaneously for all the stocks
     # threading
-    return
+    if currentInvestment[stockName] == 0:
+        # if last 2 bars were green, then send invest signal
+        # else send wait signal
+        lastTwo = stockToRenko[stockName].tail(2)
+        if lastTwo.loc[0].at["color"] == "green" and lastTwo.loc[1].at["color"] == "green":
+            return "invest"
+        else:
+            return "wait"
+    else:
+        # detect catastrophic condition, send catastrophic signal
+        # if last bar was red, then pull out the invested money, send pull out signal
+        if detectCatastrophe(stockName):
+            return "catastrophe"
+        elif stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
+            return "red"
+        else:
+            return "wait"
 
-def amountToBuy():
+def amountToBuy(stockName):
     # how much to invest given the current protfolio
     return
 
-def getPortfolio():
+def getPortfolio(stockName):
     # get the data of buy/sell of currently active stocks
     return
+
+timeout = 60.0*15 # 15 mins
+
+def mainFunction():
+    #do work here
+    pass
+
+l = task.LoopingCall(mainFunction)
+l.start(timeout) # call every 15 mins
+
+reactor.run()
 
 
 
