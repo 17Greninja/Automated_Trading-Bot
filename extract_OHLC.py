@@ -17,6 +17,9 @@ stockToRenko = {}
 allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
 currentInvestment = {}
+# list of stock names
+allStocks = []
+actionLog = []
 
 def initializeRenko(stockName):
     # initial data
@@ -95,7 +98,7 @@ def signalFunction(stockName):
         if detectCatastrophe(stockName):
             return "catastrophe"
         elif stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
-            return "red"
+            return "take out"
         else:
             return "wait"
 
@@ -107,12 +110,64 @@ def getPortfolio(stockName):
     # get the data of buy/sell of currently active stocks
     return
 
-timeout = 60.0*15 # 15 mins
+def amountToBuyCatas(s):
+    # how much to invest in the stock s, given a catastrophe condition
+    return
+
+def getCurPrice(stockName):
+    # returns the current price of stock stockName
+    return
+
+def investInStock(stockName,amount):
+    # invest amount = amount in stock stockName
+    return
+def withdraw(stockName):
+    # withdraw the money invested in the stock stockName
+    return
+
+def log(signal,stockName,amount):
+    # add in logs the action
+    actionLog.append([time.time(),signal,stockName,amount])
+    return
+
+def log(signal,stockName):
+    # add in logs the action
+    actionLog.append([time.time(),signal,stockName])
+    return
 
 def mainFunction():
     #do work here
+    for s in allStocks:
+        brickSize = getBrickSize(s)
+        currentStockPrice = getCurPrice(s)
+        updateRenko(s,currentStockPrice,time.time(),brickSize)
+        signal = signalFunction(s)
+        # react according to signal
+        match signal:
+            case "invest":
+                # invest money in the stock s
+                # how much to invest?
+                amount = amountToBuy(s)
+                investInStock(s,amount)
+                log("invest",s,amount)
+            case "catastrophe":
+                # invest more in stock s
+                # how much to invest more
+                # maybe take out invested money from other stocks and invest here
+                amount = amountToBuyCatas(s)
+                investInStock(s,amount)
+                log("catastrophe",s,amount)
+            case "take out":
+                # take out the invested money from stock s
+                withdraw(s)
+                log("withdraw",s)
+            case "wait":
+                # do nothing
+                log("wait",s)
     pass
 
+timeout = 60.0*15 # 15 mins
+# https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
 l = task.LoopingCall(mainFunction)
 l.start(timeout) # call every 15 mins
 
