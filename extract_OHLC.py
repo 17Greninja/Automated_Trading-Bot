@@ -71,7 +71,8 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize):
     return
 
 def getBrickSize(stockName):
-    brickSize = stockToRenko[stockName].tail(1)["bottom price"]/20
+    # ATR or score based
+    brickSize = stockToRenko[stockName].tail(1)["bottom price"]/50
     return brickSize
 
 def detectCatastrophe(stockName):
@@ -88,7 +89,9 @@ def signalFunction(stockName):
         # if last 2 bars were green, then send invest signal
         # else send wait signal
         lastTwo = stockToRenko[stockName].tail(2)
-        if lastTwo.loc[0].at["color"] == "green" and lastTwo.loc[1].at["color"] == "green":
+        if detectCatastrophe(stockName):
+            return "catastrophe"
+        elif lastTwo.loc[0].at["color"] == "green" and lastTwo.loc[1].at["color"] == "green":
             return "invest"
         else:
             return "wait"
@@ -135,8 +138,19 @@ def log(signal,stockName):
     actionLog.append([time.time(),signal,stockName])
     return
 
+def investInStocks(shouldInvestStocks,catastropheStocks):
+    #
+    return
+
+def totalRevenue():
+    # returns the current holding plus the buffer money
+    return
+
+
+
 def mainFunction():
-    #do work here
+    shouldInvestStocks = []
+    catastropheStocks = []
     for s in allStocks:
         brickSize = getBrickSize(s)
         currentStockPrice = getCurPrice(s)
@@ -147,16 +161,18 @@ def mainFunction():
             case "invest":
                 # invest money in the stock s
                 # how much to invest?
-                amount = amountToBuy(s)
-                investInStock(s,amount)
-                log("invest",s,amount)
+                shouldInvestStocks.append(s)
+                # amount = amountToBuy(s)
+                # investInStock(s,amount)
+                # log("invest",s,amount)
             case "catastrophe":
                 # invest more in stock s
                 # how much to invest more
                 # maybe take out invested money from other stocks and invest here
-                amount = amountToBuyCatas(s)
-                investInStock(s,amount)
-                log("catastrophe",s,amount)
+                catastropheStocks.append(s)
+                # amount = amountToBuyCatas(s)
+                # investInStock(s,amount)
+                # log("catastrophe",s,amount)
             case "take out":
                 # take out the invested money from stock s
                 withdraw(s)
@@ -164,6 +180,7 @@ def mainFunction():
             case "wait":
                 # do nothing
                 log("wait",s)
+    investInStocks(shouldInvestStocks,catastropheStocks)
     pass
 
 timeout = 60.0*15 # 15 mins
@@ -172,6 +189,3 @@ l = task.LoopingCall(mainFunction)
 l.start(timeout) # call every 15 mins
 
 reactor.run()
-
-
-

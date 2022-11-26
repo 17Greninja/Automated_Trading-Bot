@@ -18,19 +18,19 @@ Problem Statement/ General Outline
 
 5) Send alert once entry/exit conditons are triggered
 
-5) Place order through API or manually
+6) Place order through API or manually
 
-6) How to choose which stocks to buy
+7) How to choose which stocks to buy
    i)  Based on past behaviour (proprtional to average renko uptrend, can modify further)
    ii) How many stocks to invest in? (3-10)
    iii) How much to invest in each stock?
    iv) sector based?
    
-7) Buffer money 
+8) Buffer money 
 
-8) Negatively correlated stocks
+9) Negatively correlated stocks
 
-9) Catastrophe condition - to detect unusual stock movement
+10) Catastrophe condition - to detect unusual stock movement
    i) scan for stocks which moved x% in past y% days, invest more in them
    
 *(There maybe a way to skip the conversion of data into renko charts, look into it..., will save time)
