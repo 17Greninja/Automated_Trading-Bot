@@ -4,8 +4,8 @@ from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram.ext.filters import Filters
-from bob_telegram_tools.bot import TelegramBot
-import matplotlib.pyplot as plt
+import yfinance as yf
+import extract_OHLC
 
 updater = Updater("5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA",
 				use_context=True)
@@ -25,37 +25,57 @@ def help(update: Update, context: CallbackContext):
 
 
 def see_logs(update: Update, context: CallbackContext):
-	update.message.reply_text(
-		"do stuff")
+	if(len(extract_OHLC.actionLog)>=20):
+		update.message.reply_text("Last 20 actions: ")
+		actionListLast20 = extract_OHLC.actionLog[-20:]
+		for a in actionListLast20:
+			if len(a) == 4:
+				update.message.reply_text(str(a[0])+" - "+str(a[1])+" - "+str(a[2])+" - "+str(a[3]))
+			elif len(a) == 3:
+				update.message.reply_text(str(a[0])+" - "+str(a[1])+" - "+str(a[2]))
+	else:
+		update.message.reply_text("Last "+str(len(extract_OHLC.actionLog))+" actions: ")
+		for a in extract_OHLC.actionLog:
+			if len(a) == 4:
+				update.message.reply_text(str(a[0])+" - "+str(a[1])+" - "+str(a[2])+" - "+str(a[3]))
+			elif len(a) == 3:
+				update.message.reply_text(str(a[0])+" - "+str(a[1])+" - "+str(a[2]))
+	return
+	
 
 
 def get_graph_of_stock(update: Update, context: CallbackContext):
-	update.message.reply_text("Enter stock name")
-	# user_input = update.message.text
-	# token = '5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA'
-	# user_id = int('1744336909')
-	# bot = TelegramBot(token, user_id)
-	# plt.plot([1, 2, 3, 4])
-	# plt.ylabel('some numbers')
-	# bot.send_plot(plt)
-	# # This method delete the generetad image
-	# bot.clean_tmp_dir()
+	update.message.reply_text("Not yet implemented")
+	
 
 
 def get_currentPrice_of_stock(update: Update, context: CallbackContext):
 	update.message.reply_text("Enter stock name")
-	# user_input = update.message.text
-	# update.message.reply_text("do stuff")
-
+	return
 
 def get_portfolio(update: Update, context: CallbackContext):
-	update.message.reply_text("do stuff")
+	update.message.reply_text("Here: ")
+	portfolio = extract_OHLC.currentInvestment
+	for key in portfolio:
+		update.message.reply_text(key+" -> "+str(portfolio[key]))
+	return
+
 
 def unknown_text(update: Update, context: CallbackContext):
 	update.message.reply_text("Sorry I can't recognize you , you said '%s'" % update.message.text)
 
 def unknown(update: Update, context: CallbackContext):
-    update.message.reply_text("Sorry '%s' is not a valid command" % update.message.text)
+    update.message.reply_text("Stock name is: '%s'" % update.message.text)
+    stockName = update.message.text
+    if stockName not in extract_OHLC.listOfAllAvailableStocks:
+        update.message.reply_text("Stock name: '%s' is invalid" % update.message.text)
+        return
+    stock_info = yf.Ticker(update.message.text + ".NS").info
+	# stock_info.keys() for other properties you can explore
+    market_price = stock_info['regularMarketPrice']
+    previous_close_price = stock_info['regularMarketPreviousClose']
+    update.message.reply_text("Current market price: " + str(market_price))
+    update.message.reply_text("Previous closing price: " + str(previous_close_price))
 
 
 updater.dispatcher.add_handler(CommandHandler('start', start))

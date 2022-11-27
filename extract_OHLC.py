@@ -10,16 +10,67 @@ import time
 import math
 from twisted.internet import task, reactor
 
+listOfAllAvailableStocks = [
+    'ADANIPORTS',
+    'APOLLOHOSP',
+    'ASIANPAINT',
+    'AXISBANK',
+    'BAJAJ-AUTO',
+    'BAJFINANCE',
+    'BAJAJFINSV',
+    'BPCL',
+    'BHARTIARTL',
+    'BRITANNIA',
+    'CIPLA',
+    'COALINDIA',
+    'DIVISLAB',
+    'DRREDDY',
+    'EICHERMOT',
+    'GRASIM',
+    'HCLTECH',
+    'HDFCBANK',
+    'HDFCLIFE',
+    'HEROMOTOCO',
+    'HINDALCO',
+    'HINDUNILVR',
+    'HDFC',
+    'ICICIBANK',
+    'ITC',
+    'INDUSINDBK',
+    'INFY',
+    'JSWSTEEL',
+    'KOTAKBANK',
+    'LT',
+    'M&M',
+    'MARUTI',
+    'NTPC',
+    'NESTLEIND',
+    'ONGC',
+    'RELIANCE',
+    'SBILIFE',
+    'SHREECEM',
+    'SBIN',
+    'SUNPHARMA',
+    'TCS',
+    'TATACONSUM',
+    'TATAMOTORS',
+    'TATASTEEL',
+    'TECHM',
+    'TITAN',
+    'UPL',
+    'ULTRACEMCO',
+    'WIPRO']
+
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
 # stockToRenko = {} # dictionary - {'SBIN':renkoSBIN,'ADANI':renkoADANI,..........}
 stockToRenko = {}
 # allStocksData will have a df for each stock, will contain info about investments in that particular stock
 allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
-currentInvestment = {}
+currentInvestment = {'test1':1000,'test2':2000}
 # list of stock names
 allStocks = []
-actionLog = []
+actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
 
 def initializeRenko(stockName):
     # initial data
