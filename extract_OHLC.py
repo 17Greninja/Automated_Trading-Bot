@@ -9,6 +9,10 @@ import schedule
 import time
 import math
 from twisted.internet import task, reactor
+import pyrenko
+import yfinance
+from datetime import date
+import yfinance as yf
 
 listOfAllAvailableStocks = [
     'ADANIPORTS',
@@ -71,6 +75,8 @@ currentInvestment = {'test1':1000,'test2':2000}
 # list of stock names
 allStocks = []
 actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
+# count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
+countGreenRedBars = {}
 
 def initializeRenko(stockName):
     # initial data
@@ -122,13 +128,17 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize):
     return
 
 def getBrickSize(stockName):
-    # ATR or score based
-    brickSize = stockToRenko[stockName].tail(1)["bottom price"]/50
-    return brickSize
+    # score based, better than ATR.
+    todays_date = date.today()
+    yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
+    data = yfinance.download(stockName+'.NS', start=yearAgo)
+    optimal_brick = pyrenko.renko().set_brick_size(auto = True, HLC_history = data[["High", "Low", "Close"]])
+    return optimal_brick
 
 def detectCatastrophe(stockName):
     # return true if condition is a catastrophe, else false
     # defination of catastrophe: 
+    # think of an algorithm
     return False 
 
 def signalFunction(stockName):
@@ -149,6 +159,7 @@ def signalFunction(stockName):
     else:
         # detect catastrophic condition, send catastrophic signal
         # if last bar was red, then pull out the invested money, send pull out signal
+        currentInvestment[stockName] = getCurrentHoldings(stockName)
         if detectCatastrophe(stockName):
             return "catastrophe"
         elif stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
@@ -156,27 +167,38 @@ def signalFunction(stockName):
         else:
             return "wait"
 
+def getCurrentHoldings(stockName):
+    # get current holding in the stock stockName
+    if stockName in currentInvestment.keys():
+        return currentInvestment[stockName]
+    return 0
+
 def amountToBuy(stockName):
     # how much to invest given the current protfolio
+    # think of an algorithm
     return
 
 def getPortfolio(stockName):
     # get the data of buy/sell of currently active stocks
-    return
+    return currentInvestment
 
 def amountToBuyCatas(s):
     # how much to invest in the stock s, given a catastrophe condition
+    # think of an algorithm
     return
 
 def getCurPrice(stockName):
     # returns the current price of stock stockName
-    return
+    stock_info = yf.Ticker(stockName + ".NS").info
+	# stock_info.keys() for other properties you can explore
+    market_price = stock_info['regularMarketPrice']
+    return market_price
 
 def investInStock(stockName,amount):
-    # invest amount = amount in stock stockName
+    # invest amount = amount in stock stockName - API
     return
 def withdraw(stockName):
-    # withdraw the money invested in the stock stockName
+    # withdraw the money invested in the stock stockName - API
     return
 
 def log(signal,stockName,amount):
@@ -189,15 +211,37 @@ def log(signal,stockName):
     actionLog.append([time.time(),signal,stockName])
     return
 
+def sortStocks(shouldInvestStocks):
+    # think of an algorithm
+    return
+
+def sortCatastrophicStocks(catastropheStocks):
+    # think of an algorithm
+    return
+
 def investInStocks(shouldInvestStocks,catastropheStocks):
-    #
+    # select stocks to invest in, and invest in them the correct amount of money
+    finalStocks = sortStocks(shouldInvestStocks)
+    for s in finalStocks:
+        amount = amountToBuy(s)
+        investInStock(s,amount)
+    finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
+    for s in finalStocksCatas:
+        amount = amountToBuyCatas(s)
+        investInStock(s,amount)
+    return
+
+def getBufferMoney():
+    # get amount of money not invested - API
     return
 
 def totalRevenue():
     # returns the current holding plus the buffer money
-    return
-
-
+    total = 0
+    for s in currentInvestment:
+        total += currentInvestment[s]
+    total += getBufferMoney()
+    return total
 
 def mainFunction():
     shouldInvestStocks = []
