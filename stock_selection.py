@@ -63,8 +63,36 @@ for stockName in allStocks:
 
 
     
-          
-    
+
+
+
+def sortStocks(shouldInvestStocks):
+    scoreList = []
+    for stockName in shouldInvestStocks:
+       score = getScore(stockName)
+       scoreList.append([stockName,score])
+
+    #sort on basis of second list
+    sort(scoreList)
+
+    return scoreList
+
+
+
+
+#score function 
+# 1) 4-7, 7>, 2-3
+# 2) average price, period, standars deviation
+# 3) T_10% /momentum indicators
+# 4) number of red bars in past 
+# 5) average length of green bars in a run
+# 6) balance, sign changes
+# 7) probability (historical)
+# 8) volume
+# 9) sector
+
+# How many stocks to invest in?
+# What sectors to invest
 
      
 
