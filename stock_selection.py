@@ -55,6 +55,15 @@ for stockName in allStocks:
   # Max = max price in the period from t to current date
   # if T_10% <= 5 days, and max < 1.05* current price, select
 
+# how to detect a catastrophe?????
+# slope high(maybe slope > 1 or something) and double derivative postive?
+
+# for sorting catastrophe stocks
+# closeness to the av. value - reduces risk
+# g_0 is x times the av. number of green bars, mutiply by x.
+# slope of cuurent price graph
+
+
 #catastophe condition,
  # choose stocks which satisfy at least 2 of the above three conditions
  #invest in 2 of the chosen stocks - 15%, 15% 
@@ -80,7 +89,7 @@ def sortStocks(shouldInvestStocks):
 
 
 
-#score function 
+# score function for normal stocks
 # 1) 4-7, 7>, 2-3
 # 2) average price, period, standars deviation
 # 3) T_10% /momentum indicators

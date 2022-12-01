@@ -34,7 +34,7 @@
 # # print(three_yrs_ago)
 # import datetime
 # print(date.now() - date.timedelta(days=3*365))
-from datetime import date
+# from datetime import date
   
 # creating the date object of today's date
 # todays_date = date.today()
@@ -46,6 +46,7 @@ from datetime import date
 # print("Current year:", todays_date.year-2000)
 # print("Current month:", todays_date.month)
 # print("Current day:", todays_date.day)
-todays_date = date.today()
-yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
-print(yearAgo)
+# todays_date = date.today()
+# yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
+# print(yearAgo)
+import test1

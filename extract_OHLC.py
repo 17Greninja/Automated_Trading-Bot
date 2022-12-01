@@ -211,9 +211,123 @@ def log(signal,stockName):
     actionLog.append([time.time(),signal,stockName])
     return
 
-def sortStocks(shouldInvestStocks):
-    # think of an algorithm
+def score1(stockName):
+    # 1) 4-7, 7>, 2-3
+    score = 1
+    greenBarCount = countGreenRedBars[stockName][-1]
+    if greenBarCount < 0:
+        return 0
+    if greenBarCount > 7:
+        score *= 2
+    elif greenBarCount < 4:
+        score *= 1
+    else:
+        score *= 3
     return
+
+def score2(stockName):
+    # API
+    score = 1
+    return score
+
+def score3(stockName):
+    # API
+    score = 1
+    return score
+
+def score4(stockName): 
+    #r1
+    redBarCount = countGreenRedBars[stockName][-2] 
+    score = 1
+    if redBarCount>0:
+        return 0
+    score *= 1/abs(redBarCount)
+    return score
+
+def score5(stockName): 
+    #average length of green run
+    num = 0
+    sum = 0
+    for g in countGreenRedBars[stockName]:
+        if g > 0:
+            num += 1
+            sum += g
+    score = sum/num        
+    return score
+
+def score6(stockName):
+    # 6) balance, sign changes
+    signChanges = len(countGreenRedBars[stockName])-1
+    sum_abs = 0
+    for x in countGreenRedBars[stockName]:
+        sum_abs += abs(x)
+    score = math.log(sum_abs/signChanges)
+    return score
+
+def score7(stockName):
+    # 7) probability (current)
+    g0 = countGreenRedBars[stockName][-1]
+    gteqg0 = 0
+    gteqgoplus2 = 0
+    for x in countGreenRedBars[stockName]:
+        if x >= g0+2:
+            gteqgoplus2 +=1
+        elif x >= g0:
+            gteqg0 +=1
+    score = gteqgoplus2/gteqg0
+    return score
+    
+def score8(stockName):
+    # 7) probability (historical) 
+    gteq1 = 0
+    gteqg3 = 0
+    for x in countGreenRedBars[stockName]:
+        if x >= 3:
+            gteqgoplus2 +=1
+        elif x >= 2:
+            gteqg0 +=1
+    score = gteqg3/gteq1
+    return score
+
+def score9(stockName):
+    # think
+    score = 1
+    return score
+
+def score10(stockName):
+    # think
+    score = 1
+    return score
+
+def sortScore(stockName): #2, 3 , 9 , 10
+    # score function for sorting purpose
+    # score function depends on the following:
+    # 1) 4-7, 7>, 2-3 done
+    # 2) average price, period, standars deviation
+    # 3) T_10% /momentum indicators
+    # 4) number of red bars in past 
+    # 5) average length of green bars in a run
+    # 6) balance, sign changes
+    # 7) probability (current)
+    # 8) probablity (historical) 
+    # 9) volume
+    # 10) sector
+    score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)
+    return score
+
+def getNumStocks(scoreList):
+    # number of stocks to invest in from shouldInvestStocks
+    return
+
+def sortStocks(shouldInvestStocks):
+    scoreList = []
+    for stockName in shouldInvestStocks:
+       score = sortScore(stockName)
+       scoreList.append([stockName,score])
+    #sort on basis of second list
+    scoreList.sort(key=lambda x: x[1])
+    numStocks = getNumStocks(scoreList)  #find
+    return scoreList[:(-1*numStocks)]
 
 def sortCatastrophicStocks(catastropheStocks):
     # think of an algorithm
@@ -250,7 +364,7 @@ def mainFunction():
         brickSize = getBrickSize(s)
         currentStockPrice = getCurPrice(s)
         updateRenko(s,currentStockPrice,time.time(),brickSize)
-        signal = signalFunction(s)
+        signal =  signalFunction(s)
         # react according to signal
         match signal:
             case "invest":
