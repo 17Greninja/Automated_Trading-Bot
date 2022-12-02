@@ -31,17 +31,31 @@ countGreenRedBars = {}
 
 def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
     # update - add new bricks(if needed)
-    stockDf = renko
+    numIndex = len(renko.index)
+    numIndex -= 1
+    stockDf = renko.copy()
     lastRow = stockDf.tail(1)
-    lastTop = lastRow["top price"][0]
-    lastBottom = lastRow["bottom price"][0]
-    lastTimeStamp = lastRow["end timestamp"][0]
-    lastColor = lastRow["color"][0]
+
+    lastTop = lastRow["top price"]
+    lastTop = lastTop.to_frame().T
+    lastTop = lastTop.loc['top price',numIndex]
+
+    lastBottom = lastRow["bottom price"]
+    lastBottom = lastBottom.to_frame().T
+    lastBottom = lastBottom.loc['bottom price',numIndex]
+
+    lastTimeStamp = lastRow["end timestamp"]
+    lastTimeStamp = lastTimeStamp.to_frame().T
+    lastTimeStamp = lastTimeStamp.loc['end timestamp',numIndex]
+
+    lastColor = lastRow["color"]
+    lastColor = lastColor.to_frame().T
+    lastColor = lastColor.loc['color',numIndex]
+
     start = lastTimeStamp
     end = timeStamp
     delta = end - start
     delta = int(delta.days)
-    # print(lastColor[0])
     if lastColor == "green":
         if curPrice >= lastTop:
             numNewBricks = int(math.floor((curPrice-lastTop)/brickSize))
@@ -72,7 +86,7 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
                 stockDf.loc[len(stockDf.index)] = [stockName,start,start + dt.timedelta(days = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
                 start = start + dt.timedelta(seconds=((1)/numNewBricks)*delta)
                 lastBelow -= brickSize
-    renko = stockDf
+    renko = stockDf.copy()
     return renko
 
 for stockName in listOfAllAvailableStocks:
@@ -83,34 +97,22 @@ for stockName in listOfAllAvailableStocks:
     ticker_name = stockName + ".NS"
     ohlcv = yfinance.download(ticker_name, start_date, end_date)
     dates = list(ohlcv.index.values)
-    # print(str(dates[0])[0:10])
     dates = [str(x)[0:10] for x in dates]
-    # print(dates)
-    # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also 
-    #     print(ohlcv.head)
-    # print(ohlcv)
     curPrice = ohlcv.loc[str(start_date.date()),'Close']
     newPrice = curPrice
     rowNum = 0
     itDate = start_date
-    # print(brickSize)
-    # print(curPrice)
     while abs(newPrice-curPrice)<brickSize and rowNum<len(ohlcv.index):
         itDate = itDate + dt.timedelta(1)
         weekno = itDate.weekday()
         if str(itDate.date()) in dates:
             rowNum += 1
-            newPrice = ohlcv.loc[str(itDate.date()),'Close']
-    # print(newPrice) 
-    # print(rowNum)    
+            newPrice = ohlcv.loc[str(itDate.date()),'Close']   
     numBricks = math.floor(abs(newPrice-curPrice)/brickSize)
-    # print(numBricks)
     finalDate = itDate
     itDate = start_date
     delta = finalDate - itDate
     delta = int(delta.days)
-    # print(int(delta.days))
-    # print(type(delta))
     for i in range(0,numBricks):
         if newPrice > curPrice:
             renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'green',brickSize,curPrice+brickSize,curPrice]   
@@ -123,7 +125,7 @@ for stockName in listOfAllAvailableStocks:
         finalDate = finalDate + dt.timedelta(1)
         if str(finalDate.date()) in dates:
             newPrice = ohlcv.loc[str(finalDate.date()),'Close']
-            renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko)
-    stockToRenko[stockName] = renko
+            renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
+    stockToRenko[stockName] = renko.copy()
     print(renko)
 
