@@ -392,7 +392,7 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     finalStocks = sortStocks(shouldInvestStocks)
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
     bufferMoney = getBufferMoney()
-    amountToBeInvested = bufferMoney/2
+    amountToBeInvested = bufferMoney*0.8
     amountToBeInvestedFinalStocks = amountToBeInvested*0.6
     amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
     numFinalStocks = len(finalStocks)
