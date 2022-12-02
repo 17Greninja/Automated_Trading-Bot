@@ -22,10 +22,8 @@ stockToRenko = {}
 # allStocksData will have a df for each stock, will contain info about investments in that particular stock
 allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
-currentInvestment = {'test1':1000,'test2':2000}
-# list of stock names
-allStocks = []
-actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
+currentInvestment = {}
+actionLog = []
 # count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
 countGreenRedBars = {}
 
@@ -59,6 +57,8 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
     if lastColor == "green":
         if curPrice >= lastTop:
             numNewBricks = int(math.floor((curPrice-lastTop)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName][-1] += numNewBricks
             lastUp = lastTop
             for i in range(0,numNewBricks):
                 stockDf.loc[len(stockDf.index)] = [stockName,start,start + dt.timedelta(days = ((1)/numNewBricks)*delta),"green",brickSize,lastUp+brickSize,lastUp]
@@ -66,6 +66,8 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
                 lastUp += brickSize
         elif curPrice <= lastBottom:
             numNewBricks = int(math.floor((lastBottom-curPrice)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName].append(-1*numNewBricks)
             lastBelow = lastBottom
             for i in range(0,numNewBricks):
                 stockDf.loc[len(stockDf.index)] = [stockName,start,start + dt.timedelta(days = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
@@ -74,6 +76,8 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
     elif lastColor == "red":
         if curPrice>=lastTop:
             numNewBricks = int(math.floor((curPrice-lastTop)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName].append(numNewBricks)
             lastBelow = lastTop
             for i in range(0,numNewBricks):
                 stockDf.loc[len(stockDf.index)] = [stockName,start,start + dt.timedelta(days = ((1)/numNewBricks)*delta),"green",brickSize,lastBelow+brickSize,lastBelow]
@@ -81,6 +85,8 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
                 lastBelow += brickSize
         elif curPrice<=lastBottom:
             numNewBricks = int(math.floor((lastBottom-curPrice)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName][-1] -= numNewBricks
             lastBelow = lastBottom
             for i in range(0,numNewBricks):
                 stockDf.loc[len(stockDf.index)] = [stockName,start,start + dt.timedelta(days = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
@@ -90,6 +96,7 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
     return renko
 
 for stockName in listOfAllAvailableStocks:
+    countGreenRedBars[stockName] = []
     brickSize = getBrickSize(stockName)
     renko = pd.DataFrame(columns=["stock name","start timestamp","end timestamp","color","brick size","top price","bottom price"])
     start_date = dt.datetime.today()- dt.timedelta(365) # getting data of around 1 year.
@@ -113,6 +120,10 @@ for stockName in listOfAllAvailableStocks:
     itDate = start_date
     delta = finalDate - itDate
     delta = int(delta.days)
+    if newPrice > curPrice:
+        countGreenRedBars[stockName].append(numBricks)
+    else:
+        countGreenRedBars.append(-1*numBricks)
     for i in range(0,numBricks):
         if newPrice > curPrice:
             renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'green',brickSize,curPrice+brickSize,curPrice]   
@@ -127,5 +138,7 @@ for stockName in listOfAllAvailableStocks:
             newPrice = ohlcv.loc[str(finalDate.date()),'Close']
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
-    print(renko)
+    # print(countGreenRedBars[stockName])
+    # print(stockToRenko[stockName])
+
 

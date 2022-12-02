@@ -50,14 +50,18 @@
 # yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
 # print(yearAgo)
 # import test1
-import datetime as dt
-import yfinance
-import pandas as pd
-import mplfinance as fplt
-from datetime import date
-import pyrenko
-import math
-start_date = dt.datetime.today()- dt.timedelta(1/24)
-ate = dt.datetime.today()
-if ate > start_date:
-    print("good")
+# import datetime as dt
+# import yfinance
+# import pandas as pd
+# import mplfinance as fplt
+# from datetime import date
+# import pyrenko
+# import math
+# start_date = dt.datetime.today()- dt.timedelta(1/24)
+# ate = dt.datetime.today()
+# if ate > start_date:
+#     print("good")
+l = [1,2,3,4]
+l[-1] += 100
+if l[-1] != 100:
+    print(100)
