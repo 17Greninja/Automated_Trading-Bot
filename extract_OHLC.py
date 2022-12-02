@@ -138,8 +138,16 @@ def getBrickSize(stockName):
 def detectCatastrophe(stockName):
     # return true if condition is a catastrophe, else false
     # defination of catastrophe: 
-    # think of an algorithm
-    return False 
+    # slope>1, d(slope)/dt > 0, g_0/g_avg >=2.
+    slope = getSlope(stockName)
+    if slope<1:
+        return False 
+    doubleDerivative = getDoubleDerivative(stockName)
+    if doubleDerivative<0:
+        return False
+    if scoreCatas2(stockName)<2:
+        return False
+    return True
 
 def signalFunction(stockName):
     # run through given stock and return what to do
@@ -176,7 +184,7 @@ def getCurrentHoldings(stockName):
 def amountToBuy(stockName):
     # how much to invest given the current protfolio
     # think of an algorithm
-    return
+    return 0
 
 def getPortfolio(stockName):
     # get the data of buy/sell of currently active stocks
@@ -185,7 +193,7 @@ def getPortfolio(stockName):
 def amountToBuyCatas(s):
     # how much to invest in the stock s, given a catastrophe condition
     # think of an algorithm
-    return
+    return 0
 
 def getCurPrice(stockName):
     # returns the current price of stock stockName
@@ -197,6 +205,7 @@ def getCurPrice(stockName):
 def investInStock(stockName,amount):
     # invest amount = amount in stock stockName - API
     return
+
 def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
     return
@@ -329,19 +338,72 @@ def sortStocks(shouldInvestStocks):
     numStocks = getNumStocks(scoreList)  #find
     return scoreList[:(-1*numStocks)]
 
+def getSlope(stockName):
+    # slope of price graph
+    slope = 1
+    return slope
+
+def getDoubleDerivative(stockName):
+    # double derivative of price graph
+    doubleDerivative = 0
+    return doubleDerivative
+
+def scoreCatas1(stockName):
+    # slope
+    score = getSlope(stockName)
+    return score
+
+def scoreCatas2(stockName):
+    # g_0/g_avg
+    #average length of green run
+    num = 0
+    sum = 0
+    for g in countGreenRedBars[stockName][:-1]:
+        if g > 0:
+            num += 1
+            sum += g
+    g_avg = sum/num
+    score = countGreenRedBars[stockName][-1]/g_avg
+    return score
+
+def scoreCatas3(stockName):
+    # x% increase in last y days - (x/y)
+    score = 1
+    return score
+
+def sortCatasScore(stockName):
+    score = scoreCatas1(stockName)*scoreCatas2(stockName)*scoreCatas3(stockName)
+    return score
+
 def sortCatastrophicStocks(catastropheStocks):
     # think of an algorithm
-    return
+    scoreList = []
+    for stockName in catastropheStocks:
+        score = sortCatasScore(stockName)
+        scoreList.append([stockName,score])
+    scoreList.sort(key=lambda x: x[1])
+    # Maximum of 2 stocks for catastrophe condition
+    if len(scoreList) < 2:
+        return scoreList
+    return scoreList[:-2]
 
 def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
     finalStocks = sortStocks(shouldInvestStocks)
-    for s in finalStocks:
-        amount = amountToBuy(s)
-        investInStock(s,amount)
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
+    bufferMoney = getBufferMoney()
+    amountToBeInvested = bufferMoney/2
+    amountToBeInvestedFinalStocks = amountToBeInvested*0.6
+    amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
+    numFinalStocks = len(finalStocks)
+    numCatasStocks = len(finalStocksCatas)
+    for s in finalStocks:
+        amount = amountToBeInvestedFinalStocks/numFinalStocks
+        # amount = amountToBuy(s)
+        investInStock(s,amount)
     for s in finalStocksCatas:
-        amount = amountToBuyCatas(s)
+        amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
+        # amount = amountToBuyCatas(s)
         investInStock(s,amount)
     return
 
