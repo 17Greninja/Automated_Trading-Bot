@@ -14,67 +14,20 @@ import yfinance
 from datetime import date
 import yfinance as yf
 
-listOfAllAvailableStocks = [
-    'ADANIPORTS',
-    'APOLLOHOSP',
-    'ASIANPAINT',
-    'AXISBANK',
-    'BAJAJ-AUTO',
-    'BAJFINANCE',
-    'BAJAJFINSV',
-    'BPCL',
-    'BHARTIARTL',
-    'BRITANNIA',
-    'CIPLA',
-    'COALINDIA',
-    'DIVISLAB',
-    'DRREDDY',
-    'EICHERMOT',
-    'GRASIM',
-    'HCLTECH',
-    'HDFCBANK',
-    'HDFCLIFE',
-    'HEROMOTOCO',
-    'HINDALCO',
-    'HINDUNILVR',
-    'HDFC',
-    'ICICIBANK',
-    'ITC',
-    'INDUSINDBK',
-    'INFY',
-    'JSWSTEEL',
-    'KOTAKBANK',
-    'LT',
-    'M&M',
-    'MARUTI',
-    'NTPC',
-    'NESTLEIND',
-    'ONGC',
-    'RELIANCE',
-    'SBILIFE',
-    'SHREECEM',
-    'SBIN',
-    'SUNPHARMA',
-    'TCS',
-    'TATACONSUM',
-    'TATAMOTORS',
-    'TATASTEEL',
-    'TECHM',
-    'TITAN',
-    'UPL',
-    'ULTRACEMCO',
-    'WIPRO']
+listOfAllAvailableStocks = []
 
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
 # stockToRenko = {} # dictionary - {'SBIN':renkoSBIN,'ADANI':renkoADANI,..........}
 stockToRenko = {}
 # allStocksData will have a df for each stock, will contain info about investments in that particular stock
-allStocksData = {}
+# allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
-currentInvestment = {'test1':1000,'test2':2000}
+# currentInvestment = {'test1':1000,'test2':2000}
+currentInvestment = {}
 # list of stock names
-allStocks = []
-actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
+# allStocks = []
+# actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
+actionLog = []
 # count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
 countGreenRedBars = {}
 
@@ -85,46 +38,70 @@ def initializeRenko(stockName):
 # Each renko dataframe has these columns: ["stock name","start timestamp","end timestamp","color","brick size","top price","bottom price"]
 def updateRenko(stockName,curPrice,timeStamp,brickSize):
     # update - add new bricks(if needed)
-    stockDf = stockToRenko[stockName]
+    numIndex = len(stockToRenko[stockName].index)
+    numIndex -= 1
+    stockDf = stockToRenko[stockName].copy()
     lastRow = stockDf.tail(1)
+
     lastTop = lastRow["top price"]
+    lastTop = lastTop.to_frame().T
+    lastTop = lastTop.loc['top price',numIndex]
+
     lastBottom = lastRow["bottom price"]
-    lastTimeStamp = lastRow["end timeStamp"]
+    lastBottom = lastBottom.to_frame().T
+    lastBottom = lastBottom.loc['bottom price',numIndex]
+
+    lastTimeStamp = lastRow["end timestamp"]
+    lastTimeStamp = lastTimeStamp.to_frame().T
+    lastTimeStamp = lastTimeStamp.loc['end timestamp',numIndex]
+
     lastColor = lastRow["color"]
+    lastColor = lastColor.to_frame().T
+    lastColor = lastColor.loc['color',numIndex]
+
     start = lastTimeStamp
     end = timeStamp
     delta = end - start
+    delta = int(delta.days)
     if lastColor == "green":
         if curPrice >= lastTop:
             numNewBricks = int(math.floor((curPrice-lastTop)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName][-1] += numNewBricks
             lastUp = lastTop
             for i in range(0,numNewBricks):
-                stockDf.loc[len(stockDf.index)] = [stockName,start,start + timedelta(seconds = ((1)/numNewBricks)*delta),"green",brickSize,lastUp+brickSize,lastUp]
-                start = start + timedelta(seconds=((1)/numNewBricks)*delta)
+                stockDf.loc[len(stockDf.index)] = [stockName,start,start + datetime.timedelta(days = ((1)/numNewBricks)*delta),"green",brickSize,lastUp+brickSize,lastUp]
+                start = start + datetime.timedelta(seconds=((1)/numNewBricks)*delta)
                 lastUp += brickSize
         elif curPrice <= lastBottom:
             numNewBricks = int(math.floor((lastBottom-curPrice)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName].append(-1*numNewBricks)
             lastBelow = lastBottom
             for i in range(0,numNewBricks):
-                stockDf.loc[len(stockDf.index)] = [stockName,start,start + timedelta(seconds = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
-                start = start + timedelta(seconds=((1)/numNewBricks)*delta)
+                stockDf.loc[len(stockDf.index)] = [stockName,start,start + datetime.timedelta(days = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
+                start = start + datetime.timedelta(seconds=((1)/numNewBricks)*delta)
                 lastBelow -= brickSize
     elif lastColor == "red":
         if curPrice>=lastTop:
             numNewBricks = int(math.floor((curPrice-lastTop)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName].append(numNewBricks)
             lastBelow = lastTop
             for i in range(0,numNewBricks):
-                stockDf.loc[len(stockDf.index)] = [stockName,start,start + timedelta(seconds = ((1)/numNewBricks)*delta),"green",brickSize,lastBelow+brickSize,lastBelow]
-                start = start + timedelta(seconds=((1)/numNewBricks)*delta)
+                stockDf.loc[len(stockDf.index)] = [stockName,start,start + datetime.timedelta(days = ((1)/numNewBricks)*delta),"green",brickSize,lastBelow+brickSize,lastBelow]
+                start = start + datetime.timedelta(seconds=((1)/numNewBricks)*delta)
                 lastBelow += brickSize
         elif curPrice<=lastBottom:
             numNewBricks = int(math.floor((lastBottom-curPrice)/brickSize))
+            if numNewBricks != 0:
+                countGreenRedBars[stockName][-1] -= numNewBricks
             lastBelow = lastBottom
             for i in range(0,numNewBricks):
-                stockDf.loc[len(stockDf.index)] = [stockName,start,start + timedelta(seconds = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
-                start = start + timedelta(seconds=((1)/numNewBricks)*delta)
+                stockDf.loc[len(stockDf.index)] = [stockName,start,start + datetime.timedelta(days = ((1)/numNewBricks)*delta),"red",brickSize,lastBelow,lastBelow-brickSize]
+                start = start + datetime.timedelta(seconds=((1)/numNewBricks)*delta)
                 lastBelow -= brickSize
-    stockToRenko[stockName] = stockDf
+    stockToRenko[stockName] = stockDf.copy()
     return
 
 def getBrickSize(stockName):
@@ -168,10 +145,10 @@ def signalFunction(stockName):
         # detect catastrophic condition, send catastrophic signal
         # if last bar was red, then pull out the invested money, send pull out signal
         currentInvestment[stockName] = getCurrentHoldings(stockName)
-        if detectCatastrophe(stockName):
-            return "catastrophe"
-        elif stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
+        if stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
             return "take out"
+        elif detectCatastrophe(stockName):
+            return "catastrophe"
         else:
             return "wait"
 
@@ -401,10 +378,14 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
         amount = amountToBeInvestedFinalStocks/numFinalStocks
         # amount = amountToBuy(s)
         investInStock(s,amount)
+        log('invest',s,amount)
+        currentInvestment[s] += amount
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
         investInStock(s,amount)
+        log('catastrophe',s,amount)
+        currentInvestment[s] += amount
     return
 
 def getBufferMoney():
@@ -422,7 +403,7 @@ def totalRevenue():
 def mainFunction():
     shouldInvestStocks = []
     catastropheStocks = []
-    for s in allStocks:
+    for s in listOfAllAvailableStocks:
         brickSize = getBrickSize(s)
         currentStockPrice = getCurPrice(s)
         updateRenko(s,currentStockPrice,time.time(),brickSize)
@@ -430,29 +411,20 @@ def mainFunction():
         # react according to signal
         match signal:
             case "invest":
-                # invest money in the stock s
-                # how much to invest?
                 shouldInvestStocks.append(s)
-                # amount = amountToBuy(s)
-                # investInStock(s,amount)
-                # log("invest",s,amount)
             case "catastrophe":
-                # invest more in stock s
-                # how much to invest more
-                # maybe take out invested money from other stocks and invest here
                 catastropheStocks.append(s)
-                # amount = amountToBuyCatas(s)
-                # investInStock(s,amount)
-                # log("catastrophe",s,amount)
             case "take out":
-                # take out the invested money from stock s
                 withdraw(s)
                 log("withdraw",s)
+                currentInvestment[s] = 0
             case "wait":
-                # do nothing
                 log("wait",s)
     investInStocks(shouldInvestStocks,catastropheStocks)
     pass
+
+def testFunction():
+    print("test completed")
 
 timeout = 60.0*15 # 15 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
