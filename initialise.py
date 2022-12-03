@@ -7,7 +7,7 @@ import pyrenko
 import math
 
 listOfAllAvailableStocks = [
-'SBIN']
+'AXISBANK']
 
 def getBrickSize(stockName):
     # score based, better than ATR.
@@ -26,7 +26,7 @@ allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
 currentInvestment = {}
 actionLog = []
-# count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
+# count of red, green bars for sorting pupose stockName: [3,-4,5,...] - first list for green bars, 2nd for red bars
 countGreenRedBars = {}
 
 def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
@@ -99,7 +99,7 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
 
 for stockName in listOfAllAvailableStocks:
     countGreenRedBars[stockName] = []
-    brickSize = 100
+    brickSize = 20
     renko = pd.DataFrame(columns=["stock name","start timestamp","end timestamp","color","brick size","top price","bottom price"])
     start_date = dt.datetime.today()- dt.timedelta(365) # getting data of around 1 year.
     end_date = dt.datetime.today()
@@ -131,7 +131,7 @@ for stockName in listOfAllAvailableStocks:
             renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'green',brickSize,curPrice+brickSize,curPrice]   
             curPrice = curPrice + brickSize  
         else:
-            renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'red',brickSize,curPrice-brickSize,curPrice]
+            renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'red',brickSize,curPrice,curPrice-brickSize]
             curPrice = curPrice - brickSize
         itDate = itDate + dt.timedelta(seconds=((1)/numBricks)*delta)
     while finalDate < end_date:
@@ -141,6 +141,7 @@ for stockName in listOfAllAvailableStocks:
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
     print(countGreenRedBars[stockName])
+    # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also 
     print(renko)
     # print(len(countGreenRedBars[stockName])-1)
     # sum_abs = 0
