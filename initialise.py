@@ -6,7 +6,55 @@ from datetime import date
 import pyrenko
 import math
 
-listOfAllAvailableStocks = ['ADANIPORTS']
+listOfAllAvailableStocks = ['ADANIPORTS',
+'APOLLOHOSP',
+'ASIANPAINT',
+'AXISBANK',
+'BAJAJ-AUTO',
+'BAJFINANCE',
+'BAJAJFINSV',
+'BPCL',
+'BHARTIARTL',
+'BRITANNIA',
+'CIPLA',
+'COALINDIA',
+'DIVISLAB',
+'DRREDDY',
+'EICHERMOT',
+'GRASIM',
+'HCLTECH',
+'HDFCBANK',
+'HDFCLIFE',
+'HEROMOTOCO',
+'HINDALCO',
+'HINDUNILVR',
+'HDFC',
+'ICICIBANK',
+'ITC',
+'INDUSINDBK',
+'INFY',
+'JSWSTEEL',
+'KOTAKBANK',
+'LT',
+'M&M',
+'MARUTI',
+'NTPC',
+'NESTLEIND',
+'ONGC',
+'RELIANCE',
+'SBILIFE',
+'SHREECEM',
+'SBIN',
+'SUNPHARMA',
+'TCS',
+'TATACONSUM',
+'TATAMOTORS',
+'TATASTEEL',
+'TECHM',
+'TITAN',
+'UPL',
+'ULTRACEMCO',
+'WIPRO']
 
 def getBrickSize(stockName):
     # score based, better than ATR.
@@ -123,7 +171,7 @@ for stockName in listOfAllAvailableStocks:
     if newPrice > curPrice:
         countGreenRedBars[stockName].append(numBricks)
     else:
-        countGreenRedBars.append(-1*numBricks)
+        countGreenRedBars[stockName].append(-1*numBricks)
     for i in range(0,numBricks):
         if newPrice > curPrice:
             renko.loc[len(renko.index)] = [stockName,itDate,itDate+ dt.timedelta(days=((1)/numBricks)*delta),'green',brickSize,curPrice+brickSize,curPrice]   
@@ -138,7 +186,16 @@ for stockName in listOfAllAvailableStocks:
             newPrice = ohlcv.loc[str(finalDate.date()),'Close']
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
-    # print(countGreenRedBars[stockName])
+    print(countGreenRedBars[stockName])
+    print(len(countGreenRedBars[stockName])-1)
+    sum_abs = 0
+    for x in countGreenRedBars[stockName]:
+        sum_abs += abs(x)
+    print(sum_abs)
+    print(sum_abs/len(countGreenRedBars[stockName])-1)
     # print(stockToRenko[stockName])
 
 
+
+for stockName in listOfAllAvailableStocks:
+    currentInvestment[stockName] = 0
