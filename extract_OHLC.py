@@ -181,10 +181,12 @@ def getCurPrice(stockName):
 
 def investInStock(stockName,amount):
     # invest amount = amount in stock stockName - API
+    print("Invest --- " + str(amount) + " --- in ---" + stockName)
     return
 
 def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
+    print("Withdraw from --- " + stockName)
     return
 
 def log(signal,stockName,amount):

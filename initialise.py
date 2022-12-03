@@ -6,8 +6,7 @@ from datetime import date
 import pyrenko
 import math
 
-listOfAllAvailableStocks = [
-'AXISBANK']
+listOfAllAvailableStocks = ["MUTHOOTFIN","PAYTM","SBICARD","AUBANK","CANBK","FEDERALBNK","IDFCFIRSTB","LICHSGFIN","M&MFIN","MFSL","PFC","PNB","RECLTD","SRTRANSFIN","ANGELONE","BSE","MAHABANK","CANFINHOME","CDSL","CAMS","IDFC","MANAPPURAM","UTIAMC","APOLLOHOSP","CIPLA","DIVISLAB","DRREDDY","SUNPHARMA","BIOCON","GLAND","TORNTPHARM","ABBOTINDIA","ALKEM","AUROPHARMA","LUPIN","ZYDUSLIFE","JBCHEPHARM","METROPOLIS","HCLTECH","INFY","TCS","TECHM","WIPRO","LTI","MPHASIS","COFORGE","LTTS","OFSS","PERSISTENT","BSOFT","CYIENT","FSL","INTELLECT","KPITTECH","LATENTVIEW","ZENSARTECH","ZEEL","PVR","TV18BRDCST","ADANIENT","HINDALCO","JSWSTEEL","TATASTEEL","VEDL","JINDALSTEL","SAIL","HINDCOPPER","BPCL","COALINDIA","ONGC","RELIANCE","ATGL","GAIL","IOC","GUJGASLTD","HINDPETRO","PETRONET","MRPL","NTPC","POWERGRID","ADANIGREEN","ADANITRANS","TATAPOWER","TORNTPOWER","CESC","DLF","GODREJPROP","OBEROIRLTY","ADANIPORTS","INDIGO","CONCOR","REDINGTON","BHARTIARTL","INDUSTOWER","TATACOMM","IDEA","HFCL","ROUTE","STLTECH","PAGEIND","ALOKINDS","WELSPUNIND"]
 
 def getBrickSize(stockName):
     # score based, better than ATR.
@@ -15,7 +14,7 @@ def getBrickSize(stockName):
     yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
     data = yfinance.download(stockName+'.NS', start=yearAgo)
     optimal_brick = pyrenko.renko().set_brick_size(auto = True, HLC_history = data[["High", "Low", "Close"]])
-    print(optimal_brick)
+    # print(optimal_brick)
     return optimal_brick
 
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
@@ -99,7 +98,7 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
 
 for stockName in listOfAllAvailableStocks:
     countGreenRedBars[stockName] = []
-    brickSize = 20
+    brickSize = getBrickSize(stockName)
     renko = pd.DataFrame(columns=["stock name","start timestamp","end timestamp","color","brick size","top price","bottom price"])
     start_date = dt.datetime.today()- dt.timedelta(365) # getting data of around 1 year.
     end_date = dt.datetime.today()
@@ -140,9 +139,9 @@ for stockName in listOfAllAvailableStocks:
             newPrice = ohlcv.loc[str(finalDate.date()),'Close']
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
-    print(countGreenRedBars[stockName])
+    print(stockName + " "+ str(countGreenRedBars[stockName][-1]))
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also 
-    print(renko)
+    # print(renko)
     # print(len(countGreenRedBars[stockName])-1)
     # sum_abs = 0
     # for x in countGreenRedBars[stockName]:

@@ -61,7 +61,7 @@
 # ate = dt.datetime.today()
 # if ate > start_date:
 #     print("good")
-l = [1,2,3,4]
-l[-1] += 100
-if l[-1] != 100:
-    print(100)
+# l = [1,2,3,4]
+# l[-1] += 100
+# if l[-1] != 100:
+#     print(100)
