@@ -6,55 +6,8 @@ from datetime import date
 import pyrenko
 import math
 
-listOfAllAvailableStocks = ['ADANIPORTS',
-'APOLLOHOSP',
-'ASIANPAINT',
-'AXISBANK',
-'BAJAJ-AUTO',
-'BAJFINANCE',
-'BAJAJFINSV',
-'BPCL',
-'BHARTIARTL',
-'BRITANNIA',
-'CIPLA',
-'COALINDIA',
-'DIVISLAB',
-'DRREDDY',
-'EICHERMOT',
-'GRASIM',
-'HCLTECH',
-'HDFCBANK',
-'HDFCLIFE',
-'HEROMOTOCO',
-'HINDALCO',
-'HINDUNILVR',
-'HDFC',
-'ICICIBANK',
-'ITC',
-'INDUSINDBK',
-'INFY',
-'JSWSTEEL',
-'KOTAKBANK',
-'LT',
-'M&M',
-'MARUTI',
-'NTPC',
-'NESTLEIND',
-'ONGC',
-'RELIANCE',
-'SBILIFE',
-'SHREECEM',
-'SBIN',
-'SUNPHARMA',
-'TCS',
-'TATACONSUM',
-'TATAMOTORS',
-'TATASTEEL',
-'TECHM',
-'TITAN',
-'UPL',
-'ULTRACEMCO',
-'WIPRO']
+listOfAllAvailableStocks = [
+'SBIN']
 
 def getBrickSize(stockName):
     # score based, better than ATR.
@@ -62,6 +15,7 @@ def getBrickSize(stockName):
     yearAgo = str(todays_date.year-1) + '-' +str(todays_date.month)+'-'+str(todays_date.day)
     data = yfinance.download(stockName+'.NS', start=yearAgo)
     optimal_brick = pyrenko.renko().set_brick_size(auto = True, HLC_history = data[["High", "Low", "Close"]])
+    print(optimal_brick)
     return optimal_brick
 
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
@@ -145,7 +99,7 @@ def updateRenko(stockName,curPrice,timeStamp,brickSize,renko):
 
 for stockName in listOfAllAvailableStocks:
     countGreenRedBars[stockName] = []
-    brickSize = getBrickSize(stockName)
+    brickSize = 100
     renko = pd.DataFrame(columns=["stock name","start timestamp","end timestamp","color","brick size","top price","bottom price"])
     start_date = dt.datetime.today()- dt.timedelta(365) # getting data of around 1 year.
     end_date = dt.datetime.today()
@@ -187,12 +141,13 @@ for stockName in listOfAllAvailableStocks:
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
     print(countGreenRedBars[stockName])
-    print(len(countGreenRedBars[stockName])-1)
-    sum_abs = 0
-    for x in countGreenRedBars[stockName]:
-        sum_abs += abs(x)
-    print(sum_abs)
-    print(sum_abs/len(countGreenRedBars[stockName])-1)
+    print(renko)
+    # print(len(countGreenRedBars[stockName])-1)
+    # sum_abs = 0
+    # for x in countGreenRedBars[stockName]:
+    #     sum_abs += abs(x)
+    # print(sum_abs)
+    # print(sum_abs/len(countGreenRedBars[stockName])-1)
     # print(stockToRenko[stockName])
 
 
