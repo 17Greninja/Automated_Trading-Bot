@@ -204,7 +204,7 @@ def withdraw(stockName):
     currentInvestment[stockName] = 0
     return
 
-def log(signal,stockName,amount):
+def log3(signal,stockName,amount):
     # add in logs the action
     actionLog.append([time.time(),signal,stockName,amount])
     return
@@ -398,18 +398,18 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
         # amount = amountToBuy(s)
         curPrice = getCurPrice(s[0])
         quantity = math.floor(amount/curPrice)
-        investInStock(s,quantity)
+        investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
-        log('invest',s,quantity)
+        log3('invest',s,quantity)
         currentInvestment[s] += amount
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
         curPrice = getCurPrice(s[0])
         quantity = math.floor(amount/curPrice)
-        investInStock(s,quantity)
+        investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
-        log('catastrophe',s,quantity)
+        log3('catastrophe',s,quantity)
         currentInvestment[s] += amount
     return
 
