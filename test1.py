@@ -1,4 +1,4 @@
-import yfinance as yf
+# import yfinance as yf
 # stock_info = yf.Ticker('ITC.NS').info
 # # stock_info.keys() for other properties you can explore
 # market_price = stock_info['regularMarketPrice']
@@ -61,8 +61,8 @@ import yfinance as yf
 # ate = dt.datetime.today()
 # if ate > start_date:
 #     print("good")
-l = [1,2,3,4]
-print(l[-100:])
+# l = [1,2,3,4]
+# print(l[-100:])
 
 # def getCurPrice(stockName):
 #     # returns the current price of stock stockName
@@ -72,3 +72,26 @@ print(l[-100:])
 #     return market_price
 
 # getCurPrice('AXISBANK')
+
+from telegram.ext.updater import Updater
+from telegram.update import Update
+from telegram.ext.callbackcontext import CallbackContext
+from telegram.ext.commandhandler import CommandHandler
+from telegram.ext.messagehandler import MessageHandler
+from telegram.ext.filters import Filters
+
+updater = Updater("5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA",use_context=True)
+
+def start(update: Update, context: CallbackContext):
+	update.message.reply_text(
+		"Hi guys. Please write\
+		/help to see the commands available.")
+
+def help(update: Update, context: CallbackContext):
+	update.message.reply_text("""Available Commands :-
+	/see_logs - To see the last 100 actions
+	/get_portfolio - To get the details of current investments""")
+
+updater.dispatcher.add_handler(CommandHandler('start', start))
+updater.dispatcher.add_handler(CommandHandler('help', help))
+updater.start_polling()

@@ -275,7 +275,7 @@ def score7(stockName):
     for x in countGreenRedBars[stockName]:
         if x >= g0+2:
             gteqgoplus2 +=1
-        elif x >= g0:
+        if x >= g0:
             gteqg0 +=1
     score = gteqgoplus2/gteqg0
     return score
@@ -315,6 +315,7 @@ def sortScore(stockName): #2, 3 , 9 , 10
     # 8) probablity (historical) 
     # 9) volume
     # 10) sector
+    print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName)) )
     score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)
     return score
 
