@@ -13,24 +13,25 @@ import pyrenko
 import yfinance
 from datetime import date
 import yfinance as yf
+import initialise
 
-listOfAllAvailableStocks = []
+listOfAllAvailableStocks = initialise.listOfAllAvailableStocks
 
-bufferMoney = 0
+bufferMoney = 200000
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
 # stockToRenko = {} # dictionary - {'SBIN':renkoSBIN,'ADANI':renkoADANI,..........}
-stockToRenko = {}
+stockToRenko = initialise.stockToRenko
 # allStocksData will have a df for each stock, will contain info about investments in that particular stock
 # allStocksData = {}
 # currentInvestment will contain data about all stocks and the amount of money currently invested in them.
 # currentInvestment = {'test1':1000,'test2':2000}
-currentInvestment = {}
+currentInvestment = initialise.currentInvestment
 # list of stock names
 # allStocks = []
 # actionLog = [['time1','invest','ADANI',1000],['time2','withdraw','MARUTI']]
 actionLog = []
 # count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
-countGreenRedBars = {}
+countGreenRedBars = initialise.countGreenRedBars
 
 def initializeRenko(stockName):
     # initial data
@@ -117,6 +118,7 @@ def detectCatastrophe(stockName):
     # return true if condition is a catastrophe, else false
     # defination of catastrophe: 
     # slope>1, d(slope)/dt > 0, g_0/g_avg >=2.
+    return False
     slope = getSlope(stockName)
     if slope<1:
         return False 
@@ -136,9 +138,11 @@ def signalFunction(stockName):
         # if last 2 bars were green, then send invest signal
         # else send wait signal
         lastTwo = stockToRenko[stockName].tail(2)
+        numIndex = len(stockToRenko[stockName].index)
+        numIndex -= 1
         if detectCatastrophe(stockName):
             return "catastrophe"
-        elif lastTwo.loc[0].at["color"] == "green" and lastTwo.loc[1].at["color"] == "green":
+        elif lastTwo.loc[numIndex].at["color"] == "green" and lastTwo.loc[numIndex-1].at["color"] == "green":
             return "invest"
         else:
             return "wait"
@@ -146,7 +150,9 @@ def signalFunction(stockName):
         # detect catastrophic condition, send catastrophic signal
         # if last bar was red, then pull out the invested money, send pull out signal
         currentInvestment[stockName] = getCurrentHoldings(stockName)
-        if stockToRenko[stockName].tail(1).loc[0].at["color"] == "red":
+        numIndex = len(stockToRenko[stockName].index)
+        numIndex -= 1
+        if stockToRenko[stockName].tail(1).loc[numIndex].at["color"] == "red":
             return "take out"
         elif detectCatastrophe(stockName):
             return "catastrophe"
@@ -193,6 +199,7 @@ def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
     print("Withdraw from --- " + stockName)
     curPrice = getCurPrice(stockName)
+    global bufferMoney
     bufferMoney += curPrice*currentInvestment[stockName]
     currentInvestment[stockName] = 0
     return
@@ -219,7 +226,7 @@ def score1(stockName):
         score *= 1
     else:
         score *= 3
-    return
+    return score
 
 def score2(stockName):
     # API
@@ -279,9 +286,9 @@ def score8(stockName):
     gteqg3 = 0
     for x in countGreenRedBars[stockName]:
         if x >= 3:
-            gteqgoplus2 +=1
-        elif x >= 2:
-            gteqg0 +=1
+            gteqg3 +=1
+        if x >= 2:
+            gteq1 +=1
     score = gteqg3/gteq1
     return score
 
@@ -313,7 +320,7 @@ def sortScore(stockName): #2, 3 , 9 , 10
 
 def getNumStocks(scoreList):
     # number of stocks to invest in from shouldInvestStocks
-    return
+    return 1
 
 def sortStocks(shouldInvestStocks):
     scoreList = []
@@ -378,7 +385,9 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
     finalStocks = sortStocks(shouldInvestStocks)
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
+    print(finalStocks)
     # bufferMoney = getBufferMoney()
+    global bufferMoney
     amountToBeInvested = bufferMoney*0.8
     amountToBeInvestedFinalStocks = amountToBeInvested*0.6
     amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
@@ -422,7 +431,7 @@ def mainFunction():
     for s in listOfAllAvailableStocks:
         brickSize = getBrickSize(s)
         currentStockPrice = getCurPrice(s)
-        updateRenko(s,currentStockPrice,time.time(),brickSize)
+        updateRenko(s,currentStockPrice,datetime.today(),brickSize)
         signal =  signalFunction(s)
         # react according to signal
         match signal:
@@ -435,14 +444,18 @@ def mainFunction():
                 log("withdraw",s)
             case "wait":
                 log("wait",s)
+    # print(shouldInvestStocks)
+    # print(catastropheStocks)
     investInStocks(shouldInvestStocks,catastropheStocks)
+    print(actionLog)
+    print("run completed")
     pass
 
 def testFunction():
     print("test completed")
 
 
-timeout = 60.0*15 # 15 mins
+timeout = 60.0*(2) # 15 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
 l = task.LoopingCall(mainFunction)
 l.start(timeout) # call every 15 mins

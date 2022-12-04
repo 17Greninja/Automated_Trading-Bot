@@ -6,7 +6,7 @@ from datetime import date
 import pyrenko
 import math
 
-listOfAllAvailableStocks = ["MUTHOOTFIN","PAYTM","SBICARD","AUBANK","CANBK","FEDERALBNK","IDFCFIRSTB","LICHSGFIN","M&MFIN","MFSL","PFC","PNB","RECLTD","SRTRANSFIN","ANGELONE","BSE","MAHABANK","CANFINHOME","CDSL","CAMS","IDFC","MANAPPURAM","UTIAMC","APOLLOHOSP","CIPLA","DIVISLAB","DRREDDY","SUNPHARMA","BIOCON","GLAND","TORNTPHARM","ABBOTINDIA","ALKEM","AUROPHARMA","LUPIN","ZYDUSLIFE","JBCHEPHARM","METROPOLIS","HCLTECH","INFY","TCS","TECHM","WIPRO","LTI","MPHASIS","COFORGE","LTTS","OFSS","PERSISTENT","BSOFT","CYIENT","FSL","INTELLECT","KPITTECH","LATENTVIEW","ZENSARTECH","ZEEL","PVR","TV18BRDCST","ADANIENT","HINDALCO","JSWSTEEL","TATASTEEL","VEDL","JINDALSTEL","SAIL","HINDCOPPER","BPCL","COALINDIA","ONGC","RELIANCE","ATGL","GAIL","IOC","GUJGASLTD","HINDPETRO","PETRONET","MRPL","NTPC","POWERGRID","ADANIGREEN","ADANITRANS","TATAPOWER","TORNTPOWER","CESC","DLF","GODREJPROP","OBEROIRLTY","ADANIPORTS","INDIGO","CONCOR","REDINGTON","BHARTIARTL","INDUSTOWER","TATACOMM","IDEA","HFCL","ROUTE","STLTECH","PAGEIND","ALOKINDS","WELSPUNIND"]
+listOfAllAvailableStocks = ["UPL","ACC","TITAN","DMART","ITC","CIPLA"]
 
 def getBrickSize(stockName):
     # score based, better than ATR.
@@ -103,10 +103,15 @@ for stockName in listOfAllAvailableStocks:
     start_date = dt.datetime.today()- dt.timedelta(365) # getting data of around 1 year.
     end_date = dt.datetime.today()
     ticker_name = stockName + ".NS"
+    # print('here i am')
     ohlcv = yfinance.download(ticker_name, start_date, end_date)
+    # print(ohlcv)
     dates = list(ohlcv.index.values)
+    # print(dates)
+    # start_date = dates[0]
+    # end_date = dates[-1]
     dates = [str(x)[0:10] for x in dates]
-    curPrice = ohlcv.loc[str(start_date.date()),'Close']
+    curPrice = ohlcv.loc[str(dates[0]),'Close']
     newPrice = curPrice
     rowNum = 0
     itDate = start_date

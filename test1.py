@@ -1,4 +1,4 @@
-# import yfinance as yf
+import yfinance as yf
 # stock_info = yf.Ticker('ITC.NS').info
 # # stock_info.keys() for other properties you can explore
 # market_price = stock_info['regularMarketPrice']
@@ -65,3 +65,12 @@
 # l[-1] += 100
 # if l[-1] != 100:
 #     print(100)
+
+def getCurPrice(stockName):
+    # returns the current price of stock stockName
+    stock_info = yf.Ticker(stockName + ".NS").info
+	# stock_info.keys() for other properties you can explore
+    market_price = stock_info['regularMarketPrice']
+    return market_price
+
+getCurPrice('AXISBANK')
