@@ -61,16 +61,14 @@ import yfinance as yf
 # ate = dt.datetime.today()
 # if ate > start_date:
 #     print("good")
-# l = [1,2,3,4]
-# l[-1] += 100
-# if l[-1] != 100:
-#     print(100)
+l = [1,2,3,4]
+print(l[-100:])
 
-def getCurPrice(stockName):
-    # returns the current price of stock stockName
-    stock_info = yf.Ticker(stockName + ".NS").info
-	# stock_info.keys() for other properties you can explore
-    market_price = stock_info['regularMarketPrice']
-    return market_price
+# def getCurPrice(stockName):
+#     # returns the current price of stock stockName
+#     stock_info = yf.Ticker(stockName + ".NS").info
+# 	# stock_info.keys() for other properties you can explore
+#     market_price = stock_info['regularMarketPrice']
+#     return market_price
 
-getCurPrice('AXISBANK')
+# getCurPrice('AXISBANK')

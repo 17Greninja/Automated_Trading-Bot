@@ -330,7 +330,7 @@ def sortStocks(shouldInvestStocks):
     #sort on basis of second list
     scoreList.sort(key=lambda x: x[1])
     numStocks = getNumStocks(scoreList)  #find
-    return scoreList[:(-1*numStocks)]
+    return scoreList[(-1*numStocks):]
 
 def getSlope(stockName):
     # slope of price graph
@@ -377,9 +377,7 @@ def sortCatastrophicStocks(catastropheStocks):
         scoreList.append([stockName,score])
     scoreList.sort(key=lambda x: x[1])
     # Maximum of 2 stocks for catastrophe condition
-    if len(scoreList) < 2:
-        return scoreList
-    return scoreList[:-2]
+    return scoreList[-2:]
 
 def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
@@ -442,8 +440,9 @@ def mainFunction():
             case "take out":
                 withdraw(s)
                 log("withdraw",s)
-            case "wait":
-                log("wait",s)
+            # case "wait":
+                # log("wait",s)
+                
     # print(shouldInvestStocks)
     # print(catastropheStocks)
     investInStocks(shouldInvestStocks,catastropheStocks)
