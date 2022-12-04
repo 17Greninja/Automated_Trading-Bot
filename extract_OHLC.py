@@ -396,7 +396,7 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     for s in finalStocks:
         amount = amountToBeInvestedFinalStocks/numFinalStocks
         # amount = amountToBuy(s)
-        curPrice = getCurPrice(s)
+        curPrice = getCurPrice(s[0])
         quantity = math.floor(amount/curPrice)
         investInStock(s,quantity)
         bufferMoney -= quantity*curPrice
@@ -405,7 +405,7 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
-        curPrice = getCurPrice(s)
+        curPrice = getCurPrice(s[0])
         quantity = math.floor(amount/curPrice)
         investInStock(s,quantity)
         bufferMoney -= quantity*curPrice
