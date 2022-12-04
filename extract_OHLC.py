@@ -400,8 +400,8 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
         quantity = math.floor(amount/curPrice)
         investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
-        log3('invest',s,quantity)
-        currentInvestment[s] += amount
+        log3('invest',s[0],quantity)
+        currentInvestment[s[0]] += amount
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
@@ -409,8 +409,8 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
         quantity = math.floor(amount/curPrice)
         investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
-        log3('catastrophe',s,quantity)
-        currentInvestment[s] += amount
+        log3('catastrophe',s[0],quantity)
+        currentInvestment[s[0]] += amount
     return
 
 def getBufferMoney():
