@@ -16,6 +16,7 @@ import yfinance as yf
 
 listOfAllAvailableStocks = []
 
+bufferMoney = 0
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
 # stockToRenko = {} # dictionary - {'SBIN':renkoSBIN,'ADANI':renkoADANI,..........}
 stockToRenko = {}
@@ -179,14 +180,21 @@ def getCurPrice(stockName):
     market_price = stock_info['regularMarketPrice']
     return market_price
 
-def investInStock(stockName,amount):
+def investInStock(stockName,quantity):
     # invest amount = amount in stock stockName - API
-    print("Invest --- " + str(amount) + " --- in ---" + stockName)
+    print("Invest --- " + str(quantity) + " --- in ---" + stockName)
+    if currentInvestment[stockName] == 0:
+        currentInvestment[stockName] = quantity
+    else:
+        currentInvestment[stockName] += quantity
     return
 
 def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
     print("Withdraw from --- " + stockName)
+    curPrice = getCurPrice(stockName)
+    bufferMoney += curPrice*currentInvestment[stockName]
+    currentInvestment[stockName] = 0
     return
 
 def log(signal,stockName,amount):
@@ -370,7 +378,7 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
     finalStocks = sortStocks(shouldInvestStocks)
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
-    bufferMoney = getBufferMoney()
+    # bufferMoney = getBufferMoney()
     amountToBeInvested = bufferMoney*0.8
     amountToBeInvestedFinalStocks = amountToBeInvested*0.6
     amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
@@ -379,20 +387,26 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     for s in finalStocks:
         amount = amountToBeInvestedFinalStocks/numFinalStocks
         # amount = amountToBuy(s)
-        investInStock(s,amount)
-        log('invest',s,amount)
+        curPrice = getCurPrice(s)
+        quantity = math.floor(amount/curPrice)
+        investInStock(s,quantity)
+        bufferMoney -= quantity*curPrice
+        log('invest',s,quantity)
         currentInvestment[s] += amount
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
-        investInStock(s,amount)
-        log('catastrophe',s,amount)
+        curPrice = getCurPrice(s)
+        quantity = math.floor(amount/curPrice)
+        investInStock(s,quantity)
+        bufferMoney -= quantity*curPrice
+        log('catastrophe',s,quantity)
         currentInvestment[s] += amount
     return
 
 def getBufferMoney():
     # get amount of money not invested - API
-    return
+    return 0
 
 def totalRevenue():
     # returns the current holding plus the buffer money
@@ -419,7 +433,6 @@ def mainFunction():
             case "take out":
                 withdraw(s)
                 log("withdraw",s)
-                currentInvestment[s] = 0
             case "wait":
                 log("wait",s)
     investInStocks(shouldInvestStocks,catastropheStocks)
@@ -427,6 +440,7 @@ def mainFunction():
 
 def testFunction():
     print("test completed")
+
 
 timeout = 60.0*15 # 15 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
