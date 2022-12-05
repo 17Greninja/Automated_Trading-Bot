@@ -33,6 +33,12 @@ actionLog = []
 # count of red, green bars for sorting pupose stockName: [[3,5,2,4,45,...][5,6,3,1,3,1,2,....]] - first list for green bars, 2nd for red bars
 countGreenRedBars = initialise.countGreenRedBars
 
+def sendMessageTelegram(message):
+    TOKEN = "5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA"
+    chat_id = "1744336909"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
+    requests.get(url).json()
+
 def initializeRenko(stockName):
     # initial data
     return
@@ -189,6 +195,7 @@ def getCurPrice(stockName):
 def investInStock(stockName,quantity):
     # invest amount = amount in stock stockName - API
     print("Invest --- " + str(quantity) + " --- in ---" + stockName)
+    sendMessageTelegram("Invest --- " + str(quantity) + " --- in ---" + stockName)
     if currentInvestment[stockName] == 0:
         currentInvestment[stockName] = quantity
     else:
@@ -198,6 +205,7 @@ def investInStock(stockName,quantity):
 def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
     print("Withdraw from --- " + stockName)
+    sendMessageTelegram("Withdraw from --- " + stockName)
     curPrice = getCurPrice(stockName)
     global bufferMoney
     bufferMoney += curPrice*currentInvestment[stockName]

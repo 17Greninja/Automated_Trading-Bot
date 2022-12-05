@@ -73,25 +73,35 @@
 
 # getCurPrice('AXISBANK')
 
-from telegram.ext.updater import Updater
-from telegram.update import Update
-from telegram.ext.callbackcontext import CallbackContext
-from telegram.ext.commandhandler import CommandHandler
-from telegram.ext.messagehandler import MessageHandler
-from telegram.ext.filters import Filters
+# from telegram.ext.updater import Updater
+# from telegram.update import Update
+# from telegram.ext.callbackcontext import CallbackContext
+# from telegram.ext.commandhandler import CommandHandler
+# from telegram.ext.messagehandler import MessageHandler
+# from telegram.ext.filters import Filters
 
-updater = Updater("5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA",use_context=True)
+# updater = Updater("5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA",use_context=True)
 
-def start(update: Update, context: CallbackContext):
-	update.message.reply_text(
-		"Hi guys. Please write\
-		/help to see the commands available.")
+# def start(update: Update, context: CallbackContext):
+# 	update.message.reply_text(
+# 		"Hi guys. Please write\
+# 		/help to see the commands available.")
 
-def help(update: Update, context: CallbackContext):
-	update.message.reply_text("""Available Commands :-
-	/see_logs - To see the last 100 actions
-	/get_portfolio - To get the details of current investments""")
+# def help(update: Update, context: CallbackContext):
+# 	update.message.reply_text("""Available Commands :-
+# 	/see_logs - To see the last 100 actions
+# 	/get_portfolio - To get the details of current investments""")
 
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('help', help))
-updater.start_polling()
+# updater.dispatcher.add_handler(CommandHandler('start', start))
+# updater.dispatcher.add_handler(CommandHandler('help', help))
+# updater.start_polling()
+
+import requests
+
+def sendMessageTelegram(message):
+    TOKEN = "5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA"
+    chat_id = "1744336909"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
+    requests.get(url).json()
+
+sendMessageTelegram("Araj says hi")
