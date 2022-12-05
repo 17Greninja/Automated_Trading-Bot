@@ -14,6 +14,8 @@ import yfinance
 from datetime import date
 import yfinance as yf
 import initialise
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
 listOfAllAvailableStocks = initialise.listOfAllAvailableStocks
 
@@ -190,6 +192,7 @@ def getCurPrice(stockName):
     stock_info = yf.Ticker(stockName + ".NS").info
 	# stock_info.keys() for other properties you can explore
     market_price = stock_info['regularMarketPrice']
+    # print("called")
     return market_price
 
 def investInStock(stockName,quantity):
@@ -353,6 +356,7 @@ def sortStocks(shouldInvestStocks):
     #sort on basis of second list
     scoreList.sort(key=lambda x: x[1])
     numStocks = getNumStocks(scoreList)  #find
+    numStocks = 5
     return scoreList[(-1*numStocks):]
 
 def getSlope(stockName):
@@ -429,6 +433,8 @@ def sortCatastrophicStocks(catastropheStocks):
 def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
     finalStocks = sortStocks(shouldInvestStocks)
+    # print(shouldInvestStocks)
+    # print("these are shouldInvestStocks")
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
     # print(finalStocks)
     # bufferMoney = getBufferMoney()
@@ -470,14 +476,29 @@ def totalRevenue():
     total += getBufferMoney()
     return total
 
+def getCurStockPrices():
+    result = []
+    with ThreadPoolExecutor() as exe:
+        exe.submit(getCurPrice)
+         
+        # Maps the method 'getCurPrice' with a list of values.
+        result = exe.map(getCurPrice,listOfAllAvailableStocks)
+    resultdict = {}
+    i = 0
+    for r in result:
+        resultdict[listOfAllAvailableStocks[i]] = r
+        i += 1
+    return resultdict
+
 def mainFunction():
     print("run started")
     shouldInvestStocks = []
     catastropheStocks = []
+    currentStockPriceDict = getCurStockPrices()    
     for s in listOfAllAvailableStocks:
         brickSize = getBrickSize(s)
-        currentStockPrice = getCurPrice(s)
-        print(s)
+        currentStockPrice = currentStockPriceDict[s]
+        # print(s)
         updateRenko(s,currentStockPrice,datetime.today(),brickSize)
         signal =  signalFunction(s)
         # react according to signal

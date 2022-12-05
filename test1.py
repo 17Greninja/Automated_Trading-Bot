@@ -1,4 +1,6 @@
 import yfinance as yf
+# import concurrent
+
 # stock_info = yf.Ticker('ITC.NS').info
 # # stock_info.keys() for other properties you can explore
 # market_price = stock_info['regularMarketPrice']
@@ -106,8 +108,37 @@ def getCurPrice(stockName):
 
 # sendMessageTelegram("Araj says hi")
 
-listOfAllAvailableStocks = ['BAJAJ-AUTO','EICHERMOT','HEROMOTOCO','M&M','MARUTI','TATAMOTORS','UPL','LT','GRASIM','ULTRACEMCO','ASIANPAINT','TITAN','BRITANNIA','HINDUNILVR','ITC','NESTLEIND','TATACONSUM','AXISBANK','BAJFINANCE','BAJAJFINSV','HDFCBANK','HDFCLIFE','HDFC','ICICIBANK','INDUSINDBK','KOTAKBANK','SBILIFE','SBIN','APOLLOHOSP','CIPLA','DIVISLAB','DRREDDY','SUNPHARMA','HCLTECH','INFY','TCS','TECHM','WIPRO','ADANIENT','HINDALCO','JSWSTEEL','TATASTEEL','BPCL','COALINDIA','ONGC','RELIANCE','NTPC','POWERGRID','ADANIPORTS']
+listOfAllAvailableStocks = ['BAJAJ-AUTO','EICHERMOT','HEROMOTOCO','M&M','MARUTI','TATAMOTORS']
+
+# with concurrent.futures.ThreadPoolExecutor() as executor: 
+#     # tickers = [‘NEM’, ‘FCX’, ‘BBL’, ‘GLNCY’, ‘VALE’, ‘RTNTF’, ‘SCCO’, ‘AU’, ‘NGLOY’, ‘HL’] # ticker list
+#     results = executor.map(getCurPrice, listOfAllAvailableStocks) # map takes the  function and iterables
+#     # quarter_dates = [] # list to store quarter dates
+#     # fcfs = [] # list to store free cash flows
+#     # for result in results: # loop through results
+#     #     quarter_dates.append(result[0]) # append date element
+#     #     fcfs.append(result[1]) # append fcf element
+#     print(results)
+
+# for s in listOfAllAvailableStocks:
+# 	curPrice = getCurPrice(s)
+# 	print(curPrice)
+
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
 
-for s in listOfAllAvailableStocks:
-	curPrice = getCurPrice(s)
+ 
+if __name__ == '__main__':
+    result =[]
+    with ThreadPoolExecutor() as exe:
+        exe.submit(getCurPrice)
+         
+        # Maps the method 'cube' with a list of values.
+        result = exe.map(getCurPrice,listOfAllAvailableStocks)
+    resultdict = {}
+    i = 0
+    for r in result:
+        resultdict[listOfAllAvailableStocks[i]] = r
+        i += 1
+    print(resultdict) 
