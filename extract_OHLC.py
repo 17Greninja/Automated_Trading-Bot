@@ -124,12 +124,12 @@ def detectCatastrophe(stockName):
     # return true if condition is a catastrophe, else false
     # defination of catastrophe: 
     # slope>1, d(slope)/dt > 0, g_0/g_avg >=2.
-    return False
+    # return False
     slope = getSlope(stockName)
     if slope<1:
         return False 
     doubleDerivative = getDoubleDerivative(stockName)
-    if doubleDerivative<0:
+    if doubleDerivative<=0:
         return False
     if scoreCatas2(stockName)<2:
         return False
@@ -194,8 +194,8 @@ def getCurPrice(stockName):
 
 def investInStock(stockName,quantity):
     # invest amount = amount in stock stockName - API
-    print("Invest --- " + str(quantity) + " --- in ---" + stockName)
-    sendMessageTelegram("Invest --- " + str(quantity) + " --- in ---" + stockName)
+    # print("Invest --- " + str(quantity) + " --- in ---" + stockName)
+    sendMessageTelegram("Invest --- " + str(quantity) + " --- in --- " + stockName)
     if currentInvestment[stockName] == 0:
         currentInvestment[stockName] = quantity
     else:
@@ -204,7 +204,7 @@ def investInStock(stockName,quantity):
 
 def withdraw(stockName):
     # withdraw the money invested in the stock stockName - API
-    print("Withdraw from --- " + stockName)
+    # print("Withdraw from --- " + stockName)
     sendMessageTelegram("Withdraw from --- " + stockName)
     curPrice = getCurPrice(stockName)
     global bufferMoney
@@ -310,6 +310,11 @@ def score10(stockName):
     score = 1
     return score
 
+def score11(stockName):
+    # think
+    score = getSlope(stockName)
+    return score
+
 def sortScore(stockName): #2, 3 , 9 , 10
     # score function for sorting purpose
     # score function depends on the following:
@@ -323,13 +328,22 @@ def sortScore(stockName): #2, 3 , 9 , 10
     # 8) probablity (historical) 
     # 9) volume
     # 10) sector
-    print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName)) )
-    score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)
+    # 11) slope
+    # print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName)) )
+    score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)*score11(stockName)
     return score
 
 def getNumStocks(scoreList):
     # number of stocks to invest in from shouldInvestStocks
-    return 1
+    avScore = 0
+    if len(scoreList) < 5:
+        return 3
+    avScore = (scoreList[-1][1]+scoreList[-2][1]+scoreList[-3][1]+scoreList[-4][1]+scoreList[-5][1])/5
+    numStocks = 0
+    for s in scoreList:
+        if s[1] > avScore:
+            numStocks += 1
+    return numStocks
 
 def sortStocks(shouldInvestStocks):
     scoreList = []
@@ -344,11 +358,35 @@ def sortStocks(shouldInvestStocks):
 def getSlope(stockName):
     # slope of price graph
     slope = 1
+    numGreen = countGreenRedBars[stockName][-1]
+    stockDf = stockToRenko[stockName].tail(numGreen).copy()
+    dates = list(stockDf['start timestamp'])
+    # print(dates)
+    numDays = dates[-1] - dates[0]
+    numDays = ((numDays.total_seconds())/(86400))
+    # print("numdays = " + str(numDays))
+    if numDays == 0:
+        numDays = 1
+    slope = numGreen/numDays
     return slope
 
 def getDoubleDerivative(stockName):
     # double derivative of price graph
     doubleDerivative = 0
+    numGreen = countGreenRedBars[stockName][-1]
+    stockDf = stockToRenko[stockName].tail(numGreen).copy()
+    dates = list(stockDf['start timestamp'])
+    mid = numGreen/2
+    if numGreen <= 3:
+        return 0
+    if mid == 0:
+        return 0
+    numDays1 = dates[mid] - dates[0]
+    numDays1 = abs(((numDays1.total_seconds())/(86400)))
+    numDays2 = dates[-1] - dates[mid]
+    numDays2 = abs(((numDays2.total_seconds())/(86400)))
+    if numDays2 < numDays1:
+        return 1
     return doubleDerivative
 
 def scoreCatas1(stockName):
@@ -371,7 +409,7 @@ def scoreCatas2(stockName):
 
 def scoreCatas3(stockName):
     # x% increase in last y days - (x/y)
-    score = 1
+    score = getSlope(stockName)
     return score
 
 def sortCatasScore(stockName):
@@ -392,7 +430,7 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     # select stocks to invest in, and invest in them the correct amount of money
     finalStocks = sortStocks(shouldInvestStocks)
     finalStocksCatas = sortCatastrophicStocks(catastropheStocks)
-    print(finalStocks)
+    # print(finalStocks)
     # bufferMoney = getBufferMoney()
     global bufferMoney
     amountToBeInvested = bufferMoney*0.8
@@ -433,11 +471,13 @@ def totalRevenue():
     return total
 
 def mainFunction():
+    print("run started")
     shouldInvestStocks = []
     catastropheStocks = []
     for s in listOfAllAvailableStocks:
         brickSize = getBrickSize(s)
         currentStockPrice = getCurPrice(s)
+        print(s)
         updateRenko(s,currentStockPrice,datetime.today(),brickSize)
         signal =  signalFunction(s)
         # react according to signal
@@ -463,7 +503,7 @@ def testFunction():
     print("test completed")
 
 
-timeout = 60.0*(2) # 15 mins
+timeout = 60.0*(20) # 20 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
 l = task.LoopingCall(mainFunction)
 l.start(timeout) # call every 15 mins

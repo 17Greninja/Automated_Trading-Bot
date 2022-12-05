@@ -1,4 +1,4 @@
-# import yfinance as yf
+import yfinance as yf
 # stock_info = yf.Ticker('ITC.NS').info
 # # stock_info.keys() for other properties you can explore
 # market_price = stock_info['regularMarketPrice']
@@ -64,12 +64,12 @@
 # l = [1,2,3,4]
 # print(l[-100:])
 
-# def getCurPrice(stockName):
-#     # returns the current price of stock stockName
-#     stock_info = yf.Ticker(stockName + ".NS").info
-# 	# stock_info.keys() for other properties you can explore
-#     market_price = stock_info['regularMarketPrice']
-#     return market_price
+def getCurPrice(stockName):
+    # returns the current price of stock stockName
+    stock_info = yf.Ticker(stockName + ".NS").info
+	# stock_info.keys() for other properties you can explore
+    market_price = stock_info['regularMarketPrice']
+    return market_price
 
 # getCurPrice('AXISBANK')
 
@@ -96,12 +96,18 @@
 # updater.dispatcher.add_handler(CommandHandler('help', help))
 # updater.start_polling()
 
-import requests
+# import requests
 
-def sendMessageTelegram(message):
-    TOKEN = "5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA"
-    chat_id = "1744336909"
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
-    requests.get(url).json()
+# def sendMessageTelegram(message):
+#     TOKEN = "5765859800:AAFoxAOAIlU3rt5oaiWvb7UN8aNH_6dcBhA"
+#     chat_id = "1744336909"
+#     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
+#     requests.get(url).json()
 
-sendMessageTelegram("Araj says hi")
+# sendMessageTelegram("Araj says hi")
+
+listOfAllAvailableStocks = ['BAJAJ-AUTO','EICHERMOT','HEROMOTOCO','M&M','MARUTI','TATAMOTORS','UPL','LT','GRASIM','ULTRACEMCO','ASIANPAINT','TITAN','BRITANNIA','HINDUNILVR','ITC','NESTLEIND','TATACONSUM','AXISBANK','BAJFINANCE','BAJAJFINSV','HDFCBANK','HDFCLIFE','HDFC','ICICIBANK','INDUSINDBK','KOTAKBANK','SBILIFE','SBIN','APOLLOHOSP','CIPLA','DIVISLAB','DRREDDY','SUNPHARMA','HCLTECH','INFY','TCS','TECHM','WIPRO','ADANIENT','HINDALCO','JSWSTEEL','TATASTEEL','BPCL','COALINDIA','ONGC','RELIANCE','NTPC','POWERGRID','ADANIPORTS']
+
+
+for s in listOfAllAvailableStocks:
+	curPrice = getCurPrice(s)

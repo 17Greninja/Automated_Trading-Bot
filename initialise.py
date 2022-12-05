@@ -144,7 +144,7 @@ for stockName in listOfAllAvailableStocks:
             newPrice = ohlcv.loc[str(finalDate.date()),'Close']
             renko = updateRenko(stockName,newPrice,finalDate,brickSize,renko).copy()
     stockToRenko[stockName] = renko.copy()
-    print(stockName + " "+ str(countGreenRedBars[stockName][-1]))
+    # print(stockName + " "+ str(countGreenRedBars[stockName][-1]))
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also 
     # print(renko)
     # print(len(countGreenRedBars[stockName])-1)
