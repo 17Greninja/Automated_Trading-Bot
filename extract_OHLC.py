@@ -332,7 +332,7 @@ def sortScore(stockName): #2, 3 , 9 , 10
     # 9) volume
     # 10) sector
     # 11) slope
-    # print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName)) )
+    print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName))+ " "+str(score11(stockName)) )
     score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)*score11(stockName)
     return score
 
@@ -444,19 +444,21 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
     numFinalStocks = len(finalStocks)
     numCatasStocks = len(finalStocksCatas)
+    curPriceFinalStocks = getCurStockPrices([s[0] for s in finalStocks])
     for s in finalStocks:
         amount = amountToBeInvestedFinalStocks/numFinalStocks
         # amount = amountToBuy(s)
-        curPrice = getCurPrice(s[0])
+        curPrice = curPriceFinalStocks[s[0]]
         quantity = math.floor(amount/curPrice)
         investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
         log3('invest',s[0],quantity)
         currentInvestment[s[0]] += amount
+    curPriceCatasStocks = getCurStockPrices([s[0] for s in finalStocksCatas])
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
-        curPrice = getCurPrice(s[0])
+        curPrice = curPriceCatasStocks[s[0]]
         quantity = math.floor(amount/curPrice)
         investInStock(s[0],quantity)
         bufferMoney -= quantity*curPrice
@@ -476,17 +478,17 @@ def totalRevenue():
     total += getBufferMoney()
     return total
 
-def getCurStockPrices():
+def getCurStockPrices(listOfStocks):
     result = []
     with ThreadPoolExecutor() as exe:
         exe.submit(getCurPrice)
          
         # Maps the method 'getCurPrice' with a list of values.
-        result = exe.map(getCurPrice,listOfAllAvailableStocks)
+        result = exe.map(getCurPrice,listOfStocks)
     resultdict = {}
     i = 0
     for r in result:
-        resultdict[listOfAllAvailableStocks[i]] = r
+        resultdict[listOfStocks[i]] = r
         i += 1
     return resultdict
 
@@ -494,7 +496,7 @@ def mainFunction():
     print("run started")
     shouldInvestStocks = []
     catastropheStocks = []
-    currentStockPriceDict = getCurStockPrices()    
+    currentStockPriceDict = getCurStockPrices(listOfAllAvailableStocks)    
     for s in listOfAllAvailableStocks:
         brickSize = getBrickSize(s)
         currentStockPrice = currentStockPriceDict[s]
@@ -516,7 +518,7 @@ def mainFunction():
     # print(shouldInvestStocks)
     # print(catastropheStocks)
     investInStocks(shouldInvestStocks,catastropheStocks)
-    print(actionLog)
+    # print(actionLog)
     print("run completed")
     pass
 
@@ -524,7 +526,7 @@ def testFunction():
     print("test completed")
 
 
-timeout = 60.0*(20) # 20 mins
+timeout = 60.0*(40) # 40 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
 l = task.LoopingCall(mainFunction)
 l.start(timeout) # call every 15 mins
