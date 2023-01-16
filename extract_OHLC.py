@@ -18,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from time import sleep
 
 listOfAllAvailableStocks = initialise.listOfAllAvailableStocks
+score11 = initialise.score11
 
 bufferMoney = 200000
 # Storing renko data - Each stock will have a renko dataframe assigned to it by a dictionary.
@@ -313,7 +314,10 @@ def score10(stockName):
     score = 1
     return score
 
-def score11(stockName):
+def score11function(stockName):
+    return score11[stockName]
+
+def score12(stockName):
     # think
     score = getSlope(stockName)
     return score
@@ -332,8 +336,8 @@ def sortScore(stockName): #2, 3 , 9 , 10
     # 9) volume
     # 10) sector
     # 11) slope
-    print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName))+ " "+str(score11(stockName)) )
-    score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)*score11(stockName)
+    print(stockName + " " + str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score11[stockName])+ " "+str(score12(stockName)))
+    score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)*score12(stockName)*(1/score11[stockName])
     return score
 
 def getNumStocks(scoreList):

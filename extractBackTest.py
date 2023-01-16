@@ -334,7 +334,7 @@ def sortScore(stockName): #2, 3 , 9 , 10
     # 9) volume
     # 10) sector
     # 11) slope
-    print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName))+ " "+str(score11(stockName)) )
+    # print(stockName + " "+str(score1(stockName))+ " "+str(score2(stockName))+ " "+str(score3(stockName))+ " "+str(score4(stockName))+ " "+str(score5(stockName))+ " "+str(score6(stockName))+ " "+str(score7(stockName))+ " "+str(score8(stockName))+ " "+str(score9(stockName))+ " "+str(score10(stockName))+ " "+str(score11(stockName)) )
     score = score1(stockName)*score2(stockName)*score3(stockName)*score4(stockName)*score5(stockName)*score6(stockName)*score7(stockName)*score8(stockName)*score9(stockName)*score10(stockName)*score11(stockName)
     return score
 
@@ -363,17 +363,25 @@ def sortStocks(shouldInvestStocks):
 
 def getSlope(stockName):
     # slope of price graph
+    # print("----------")
+    # print(stockName)
     slope = 1
     numGreen = countGreenRedBars[stockName][-1]
+    print(str(numGreen))
+    print(countGreenRedBars[stockName])
     stockDf = stockToRenko[stockName].tail(numGreen).copy()
     dates = list(stockDf['start timestamp'])
     # print(dates)
-    numDays = dates[-1] - dates[0]
+    numDays = dates[-1] - dates[-1*(numGreen+1)]
+    print(numDays)
     numDays = ((numDays.total_seconds())/(86400))
+    # print(numDays)
     # print("numdays = " + str(numDays))
     if numDays == 0:
         numDays = 1
     slope = numGreen/numDays
+    # print(slope)
+    # print("----------")
     return slope
 
 def getDoubleDerivative(stockName):
@@ -446,24 +454,24 @@ def investInStocks(shouldInvestStocks,catastropheStocks):
     amountToBeInvestedFinalStocksCatas = amountToBeInvested*0.4
     numFinalStocks = len(finalStocks)
     numCatasStocks = len(finalStocksCatas)
-    curPriceFinalStocks = getCurStockPrices([s[0] for s in finalStocks])
+    # curPriceFinalStocks = getCurStockPrices([s[0] for s in finalStocks])
     for s in finalStocks:
         amount = amountToBeInvestedFinalStocks/numFinalStocks
         # amount = amountToBuy(s)
-        curPrice = curPriceFinalStocks[s[0]]
-        quantity = math.floor(amount/curPrice)
+        # curPrice = curPriceFinalStocks[s[0]]
+        quantity = 1
         investInStock(s[0],quantity)
-        bufferMoney -= quantity*curPrice
+        bufferMoney -= 0
         log3('invest',s[0],quantity)
         currentInvestment[s[0]] += amount
-    curPriceCatasStocks = getCurStockPrices([s[0] for s in finalStocksCatas])
+    # curPriceCatasStocks = getCurStockPrices([s[0] for s in finalStocksCatas])
     for s in finalStocksCatas:
         amount = amountToBeInvestedFinalStocksCatas/numCatasStocks
         # amount = amountToBuyCatas(s)
-        curPrice = curPriceCatasStocks[s[0]]
-        quantity = math.floor(amount/curPrice)
+        # curPrice = curPriceCatasStocks[s[0]]
+        quantity = 1
         investInStock(s[0],quantity)
-        bufferMoney -= quantity*curPrice
+        bufferMoney -= 0
         log3('catastrophe',s[0],quantity)
         currentInvestment[s[0]] += amount
     return
@@ -498,10 +506,10 @@ def mainFunction():
     print("run started")
     shouldInvestStocks = []
     catastropheStocks = []
-    currentStockPriceDict = getCurStockPrices(listOfAllAvailableStocks)    
+    # currentStockPriceDict = getCurStockPrices(listOfAllAvailableStocks)    
     for s in listOfAllAvailableStocks:
         # brickSize = getBrickSize(s)
-        currentStockPrice = currentStockPriceDict[s]
+        # currentStockPrice = currentStockPriceDict[s]
         # print(s)
         # updateRenko(s,currentStockPrice,datetime.today(),brickSize)
         signal =  signalFunction(s)
@@ -525,12 +533,14 @@ def mainFunction():
     pass
 
 def testFunction():
-    print("test completed")
+    for s in listOfAllAvailableStocks:
+        print(s + " "+str(getSlope(s)))
+        print("=============")
 
 
 timeout = 60.0*(40) # 40 mins
 # https://stackoverflow.com/questions/474528/how-to-repeatedly-execute-a-function-every-x-seconds
-l = task.LoopingCall(mainFunction)
+l = task.LoopingCall(testFunction)
 l.start(timeout) # call every 15 mins
 
 reactor.run()

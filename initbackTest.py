@@ -6,7 +6,7 @@ from datetime import date
 import pyrenko
 import math
 
-listOfAllAvailableStocks = ["BAJAJ-AUTO","EICHERMOT","HEROMOTOCO","M&M","MARUTI","TATAMOTORS","BOSCHLTD"]
+listOfAllAvailableStocks = ["WELSPUNIND"]
 
 backDelta = 30
 
@@ -122,7 +122,8 @@ for stockName in listOfAllAvailableStocks:
         weekno = itDate.weekday()
         if str(itDate.date()) in dates:
             rowNum += 1
-            newPrice = ohlcv.loc[str(itDate.date()),'Close']   
+            newPrice = ohlcv.loc[str(itDate.date()),'Close']
+    print(stockName)           
     numBricks = math.floor(abs(newPrice-curPrice)/brickSize)
     finalDate = itDate
     itDate = start_date
@@ -148,7 +149,7 @@ for stockName in listOfAllAvailableStocks:
     stockToRenko[stockName] = renko.copy()
     # print(stockName + " "+ str(countGreenRedBars[stockName][-1]))
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also 
-    print(renko)
+    # print(renko)
     # print(len(countGreenRedBars[stockName])-1)
     # sum_abs = 0
     # for x in countGreenRedBars[stockName]:
